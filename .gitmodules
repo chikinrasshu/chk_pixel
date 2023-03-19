@@ -1,0 +1,12 @@
+[submodule "ext/glfw"]
+	path = ext/glfw
+	url = https://github.com/glfw/glfw
+[submodule "ext/whereami"]
+	path = ext/whereami
+	url = https://github.com/gpakosz/whereami/
+[submodule "ext/glad"]
+	path = ext/glad
+	url = https://github.com/dav1dde/glad
+[submodule "ext/spng"]
+	path = ext/spng
+	url = https://github.com/randy408/libspng

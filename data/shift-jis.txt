@@ -1,0 +1,12 @@
+// Starts from char 32, fitted into a 128x128 at 6x12 (scale this for other sizes)
+
+ !"#$%&'()*+,-./01234
+56789:;<=>?@ABCDEFGHI
+JKLMNOPQRSTUVWXYZ[\]^
+_`abcdefghijklmnopqrs
+tuvwxyz{|}~DEL       
+
+   ｡｢｣､･ｦｧｨｩｪｫｬｭｮｯｰｱｲ
+ｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇ
+ﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜ
+ﾝﾞﾟ
