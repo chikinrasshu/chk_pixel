@@ -1,4 +1,5 @@
 #include "vec3.h"
+#include <math.h>
 
 V3 v3(float x, float y, float z) { return (V3){x, y, z}; }
 

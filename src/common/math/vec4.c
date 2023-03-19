@@ -1,4 +1,5 @@
 #include "vec4.h"
+#include <math.h>
 
 V4 v4(float x, float y, float z, float w) { return (V4){x, y, z, w}; }
 

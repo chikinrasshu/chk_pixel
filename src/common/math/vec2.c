@@ -1,4 +1,5 @@
 #include "vec2.h"
+#include <math.h>
 
 V2 v2(float x, float y) { return (V2){x, y}; }
 
