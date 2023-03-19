@@ -2,9 +2,15 @@ cmake_minimum_required(VERSION 3.25)
 project(chk_pixel)
 
 # Add GLFW
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_DOCS
+    OFF
+    CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS
+    OFF
+    CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES
+    OFF
+    CACHE BOOL "" FORCE)
 add_subdirectory("ext/glfw")
 
 # Add Glad
@@ -30,8 +36,6 @@ target_link_libraries(chk_pixel chk_common chk_renderer chk_soft chk_window)
 
 # Sym-Link the data folder to the executable
 add_custom_command(
-    TARGET chk_pixel 
-    COMMAND ${CMAKE_COMMAND} -E 
-        create_symlink ${CMAKE_CURRENT_SOURCE_DIR}/data 
-                       $<TARGET_FILE_DIR:chk_pixel>/data
-)
+  TARGET chk_pixel
+  COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_SOURCE_DIR}/data
+          $<TARGET_FILE_DIR:chk_pixel>/data)
