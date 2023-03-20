@@ -1,52 +1,31 @@
 #include "arena.h"
 
-MemoryArena *chk_memory_arena_create(size_t size)
+bool chk_memory_arena_alloc(MemoryArena *arena, size_t size)
 {
-    if (!size)
+    chk_error_if(size == 0, "size was zero.") return false;
+
+    void *ptr = chk_alloc(size);
+    chk_error_if(!ptr, "Failed to create the memory arena.") return false;
+
+    arena->owns_memory = true;
+    if (!chk_memory_arena_init(arena, ptr, size))
     {
-        fprintf(stderr, "chk_memory_arena_create: Size was 0.\n");
-        return NULL;
-    }
-
-    MemoryArena *arena = chk_alloc(sizeof(*arena));
-    if (!arena)
-    {
-        fprintf(stderr, "chk_memory_arena_create: Failed to allocate the memory arena object.\n");
-    }
-
-    if (!chk_memory_arena_init(arena, size))
-    {
-        chk_free(arena);
-        return NULL;
-    }
-
-    return arena;
-}
-
-void chk_memory_arena_free(MemoryArena *arena)
-{
-    chk_memory_arena_destroy(arena);
-    chk_free(arena);
-}
-
-bool chk_memory_arena_init(MemoryArena *arena, size_t size)
-{
-    if (!arena)
-    {
-        fprintf(stderr, "chk_memory_arena_init: arena was NULL\n");
+        chk_free(ptr);
         return false;
     }
+    return true;
+}
 
-    if (arena->memory)
+bool chk_memory_arena_init(MemoryArena *arena, void *memory, size_t size)
+{
+    chk_error_if(!arena, "arena was NULL.") return false;
+    chk_error_if(!memory, "memory was NULL.") return false;
+    chk_error_if(!size, "size was zero.") return false;
+
+    if (arena->owns_memory && arena->memory != memory)
         chk_memory_arena_destroy(arena);
 
-    arena->memory = chk_alloc(size);
-    if (!arena->memory)
-    {
-        fprintf(stderr, "chk_memory_arena_init: Failed to allocate %zu bytes for the memory arena.\n", size);
-        return false;
-    }
-
+    arena->memory = memory;
     arena->size = size;
     arena->used = 0;
     return true;
@@ -54,21 +33,29 @@ bool chk_memory_arena_init(MemoryArena *arena, size_t size)
 
 void chk_memory_arena_destroy(MemoryArena *arena)
 {
-    if (arena->memory)
-        chk_free(arena->memory);
+    chk_error_if(!arena, "arena was NULL.") return;
 
-    arena->memory = NULL;
-    arena->used = arena->size = 0;
+    if (arena->owns_memory)
+        chk_free(arena->memory);
+    *arena = (MemoryArena){0};
 }
 
 void *chk_memory_arena_push(MemoryArena *arena, size_t amount)
 {
-    if (arena->used + amount > arena->size)
-    {
-        fprintf(stderr, "chk_memory_arena_push: Not enough memory to push %zu bytes. There are only %zu left.\n", amount, arena->size - arena->used);
-        return NULL;
-    }
-    uint8_t *ptr = (uint8_t *)arena->memory + arena->used;
+    chk_error_if(!arena, "arena was NULL.") return NULL;
+    chk_error_if(!amount, "amount was zero.") return NULL;
+    chk_error_if(arena->size - arena->used < amount, "There is not enough space for the allocation.") return NULL;
+
+    void *ptr = (uint8_t *)arena->memory + arena->used;
     arena->used += amount;
     return ptr;
+}
+
+void chk_memory_arena_reset(MemoryArena *arena, bool should_clear)
+{
+    chk_error_if(!arena, "arena was NULL.") return;
+
+    if (should_clear)
+        chk_zero_memory(arena->memory, arena->used);
+    arena->used = 0;
 }

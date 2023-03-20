@@ -6,7 +6,7 @@
 #include "cmd_list.h"
 
 struct s_Renderer;
-typedef void fn_RendererBeginFrame(struct s_Renderer *base);
+typedef bool fn_RendererBeginFrame(struct s_Renderer *base);
 typedef void fn_RendererEndFrame(struct s_Renderer *base);
 typedef void fn_RendererPresentFrame(struct s_Renderer *base);
 typedef void fn_RendererProcessCmds(struct s_Renderer *base, CmdList *cmd_list);
@@ -33,7 +33,7 @@ typedef struct s_Renderer
     void *data;
 } Renderer;
 
-void chk_renderer_begin_frame(struct s_Renderer *base);
+bool chk_renderer_begin_frame(struct s_Renderer *base);
 void chk_renderer_end_frame(struct s_Renderer *base);
 void chk_renderer_present_frame(struct s_Renderer *base);
 void chk_renderer_process_cmds(struct s_Renderer *base, CmdList *cmd_list);
@@ -50,7 +50,7 @@ typedef struct s_NullRendererData
 
 bool chk_null_renderer_init(Renderer *base, NullRendererData *data, Window *window);
 
-void chk_null_renderer_begin_frame(struct s_Renderer *base);
+bool chk_null_renderer_begin_frame(struct s_Renderer *base);
 void chk_null_renderer_end_frame(struct s_Renderer *base);
 void chk_null_renderer_present_frame(struct s_Renderer *base);
 void chk_null_renderer_process_cmds(struct s_Renderer *base, CmdList *cmd_list);

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <whereami.h>
+#include <stdarg.h>
 
 // Path related
 static char *g_path_to_exe;
@@ -53,3 +54,36 @@ void *chk_alloc(size_t amount) { return malloc(amount); }
 void *chk_zalloc(size_t amount) { return calloc(1, amount); }
 void chk_free(void *ptr) { free(ptr); }
 void chk_zero_memory(void *ptr, size_t amount) { memset(ptr, 0, amount); }
+
+// Debugging related
+bool chk_generic_vprint(const char *sender, const char *file, const char *func, size_t line, const char *fmt, va_list args)
+{
+    fprintf(stderr, "[%s]: %s: %s(%zu) => ", sender, file, func, line);
+    va_list args_copy;
+    va_copy(args_copy, args);
+    vfprintf(stderr, fmt, args_copy);
+    va_end(args_copy);
+    fputc('\n', stderr);
+
+    return true;
+}
+
+bool chk_error_print(const char *func, const char *file, size_t line, const char *msg, ...)
+{
+    va_list args;
+    va_start(args, msg);
+    bool result = chk_generic_vprint("Error", file, func, line, msg, args);
+    va_end(args);
+
+    return result;
+}
+
+bool chk_log_print(const char *func, const char *file, size_t line, const char *msg, ...)
+{
+    va_list args;
+    va_start(args, msg);
+    bool result = chk_generic_vprint("Log", file, func, line, msg, args);
+    va_end(args);
+
+    return result;
+}

@@ -5,6 +5,8 @@
 
 #include <glad/gl.h>
 
+#define CHK_SOFT_GL_LOG 1
+
 typedef struct s_SoftGL
 {
     GLuint vao;

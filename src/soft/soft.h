@@ -16,8 +16,13 @@ typedef struct s_SoftRendererData
 
 bool chk_soft_renderer_init(Renderer *base, SoftRendererData *data, Window *window);
 
-void chk_soft_renderer_begin_frame(struct s_Renderer *base);
-void chk_soft_renderer_end_frame(struct s_Renderer *base);
-void chk_soft_renderer_present_frame(struct s_Renderer *base);
-void chk_soft_renderer_process_cmds(struct s_Renderer *base, CmdList *cmd_list);
-void chk_soft_renderer_cleanup(struct s_Renderer *base);
+bool chk_soft_renderer_begin_frame(Renderer *base);
+void chk_soft_renderer_end_frame(Renderer *base);
+void chk_soft_renderer_present_frame(Renderer *base);
+void chk_soft_renderer_process_cmds(Renderer *base, CmdList *cmd_list);
+void chk_soft_renderer_cleanup(Renderer *base);
+
+// Software rendering
+void chk_soft_renderer_draw_clear(Renderer *base, ClearCmd *cmd);
+void chk_soft_renderer_draw_line(Renderer *base, LineCmd *cmd);
+void chk_soft_renderer_draw_rect(Renderer *base, RectCmd *cmd);

@@ -28,6 +28,7 @@ target_include_directories(whereami PUBLIC ${WAI_SOURCES_DIR})
 add_subdirectory(src/common)
 add_subdirectory(src/renderer)
 add_subdirectory(src/soft)
+add_subdirectory(src/texture)
 add_subdirectory(src/window)
 
 # Compile the main executable

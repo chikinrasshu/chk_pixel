@@ -1,10 +1,12 @@
 #include "renderer.h"
 
 // Generic Renderer related
-void chk_renderer_begin_frame(struct s_Renderer *base)
+bool chk_renderer_begin_frame(struct s_Renderer *base)
 {
+    bool result = false;
     if (base->begin_frame)
-        base->begin_frame(base);
+        result = base->begin_frame(base);
+    return result;
 }
 
 void chk_renderer_end_frame(struct s_Renderer *base)
@@ -68,10 +70,11 @@ bool chk_null_renderer_init(Renderer *base, NullRendererData *data, Window *wind
     return true;
 }
 
-void chk_null_renderer_begin_frame(struct s_Renderer *base)
+bool chk_null_renderer_begin_frame(struct s_Renderer *base)
 {
     NullRendererData *renderer = base->data;
     // Do something with the renderer...
+    return true;
 }
 
 void chk_null_renderer_end_frame(struct s_Renderer *base)
