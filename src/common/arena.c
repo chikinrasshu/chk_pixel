@@ -16,13 +16,21 @@ bool chk_memory_arena_alloc(MemoryArena *arena, size_t size)
     return true;
 }
 
+bool chk_memory_arena_zalloc(MemoryArena *arena, size_t size)
+{
+    bool result = chk_memory_arena_alloc(arena, size);
+    if (result)
+        chk_zero_memory(arena->memory, arena->size);
+    return result;
+}
+
 bool chk_memory_arena_init(MemoryArena *arena, void *memory, size_t size)
 {
     chk_error_if(!arena, "arena was NULL.") return false;
     chk_error_if(!memory, "memory was NULL.") return false;
     chk_error_if(!size, "size was zero.") return false;
 
-    if (arena->owns_memory && arena->memory != memory)
+    if (arena->owns_memory && arena->memory != memory && arena->memory)
         chk_memory_arena_destroy(arena);
 
     arena->memory = memory;
@@ -48,6 +56,14 @@ void *chk_memory_arena_push(MemoryArena *arena, size_t amount)
 
     void *ptr = (uint8_t *)arena->memory + arena->used;
     arena->used += amount;
+    return ptr;
+}
+
+void *chk_memory_arena_zpush(MemoryArena *arena, size_t amount)
+{
+    void *ptr = chk_memory_arena_push(arena, amount);
+    if (ptr)
+        chk_zero_memory(ptr, amount);
     return ptr;
 }
 

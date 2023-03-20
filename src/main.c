@@ -53,8 +53,8 @@ int main()
 {
     Engine engine = {0};
 
-    chk_error_if(!chk_memory_arena_alloc(&engine.main_arena, chk_megabytes(256)), "Failed to allocate the main arena.") return 1;
-    chk_error_if(!chk_memory_arena_alloc(&engine.temp_arena, chk_gigabytes(1)), "Failed to allocate the transient arena.") return 1;
+    chk_error_if(!chk_memory_arena_zalloc(&engine.main_arena, chk_megabytes(256)), "Failed to allocate the main arena.") return 1;
+    chk_error_if(!chk_memory_arena_zalloc(&engine.temp_arena, chk_gigabytes(1)), "Failed to allocate the transient arena.") return 1;
 
     engine.window = chk_memory_arena_push_struct(&engine.main_arena, Window);
     engine.window->user_ptr = &engine;
@@ -68,7 +68,7 @@ int main()
 
     engine.cmd_list = chk_memory_arena_push_struct(&engine.main_arena, CmdList);
     size_t cmd_list_size = chk_megabytes(256);
-    void *cmd_list_memory = chk_memory_arena_push(&engine.temp_arena, cmd_list_size);
+    void *cmd_list_memory = chk_memory_arena_zpush(&engine.temp_arena, cmd_list_size);
     chk_cmd_list_init(engine.cmd_list, cmd_list_memory, cmd_list_size);
 
     // Run the program
