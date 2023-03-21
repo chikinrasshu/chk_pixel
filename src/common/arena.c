@@ -36,6 +36,7 @@ bool chk_memory_arena_init(MemoryArena *arena, void *memory, size_t size)
     arena->memory = memory;
     arena->size = size;
     arena->used = 0;
+    arena->last_alloc = arena->memory;
     return true;
 }
 
@@ -55,6 +56,7 @@ void *chk_memory_arena_push(MemoryArena *arena, size_t amount)
     chk_error_if(arena->size - arena->used < amount, "There is not enough space for the allocation.") return NULL;
 
     void *ptr = (uint8_t *)arena->memory + arena->used;
+    arena->last_alloc = ptr;
     arena->used += amount;
     return ptr;
 }
@@ -74,4 +76,5 @@ void chk_memory_arena_reset(MemoryArena *arena, bool should_clear)
     if (should_clear)
         chk_zero_memory(arena->memory, arena->used);
     arena->used = 0;
+    arena->last_alloc = arena->memory;
 }

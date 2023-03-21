@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(chk_pixel)
+project(chk_pixel C)
 
 # Add GLFW
 set(GLFW_BUILD_DOCS

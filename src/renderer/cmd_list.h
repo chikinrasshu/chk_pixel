@@ -1,9 +1,9 @@
 #pragma once
 
 #include <arena.h>
+#include <bitmap.h>
 #include <colors.h>
 #include <common.h>
-#include <bitmap.h>
 #include <math/vec2.h>
 
 typedef enum e_CmdKind
@@ -16,6 +16,8 @@ typedef enum e_CmdKind
 
     CmdKind_Count
 } CmdKind;
+
+const char *chk_cmd_kind_get_name(CmdKind kind);
 
 typedef struct s_RenderCmd
 {

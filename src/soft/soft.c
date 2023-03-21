@@ -1,5 +1,7 @@
 #include "soft.h"
 
+#include <math/minmax.h>
+
 V2 scale_keep_aspect(V2 src, V2 dst)
 {
     V2 s;
@@ -125,6 +127,8 @@ void chk_soft_renderer_process_cmds(Renderer *base, CmdList *cmd_list)
         size_t cmd_count = 0;
         while (raw_cmd)
         {
+            // printf("Got a cmd of kind: %s\n", chk_cmd_kind_get_name(raw_cmd->kind));
+
             switch (raw_cmd->kind)
             {
             default:
@@ -183,7 +187,81 @@ void chk_soft_renderer_draw_line(Renderer *base, LineCmd *cmd)
     /* No-Op */
 }
 
+void chk_soft_renderer_draw_rect_tex(Renderer *base, RectCmd *cmd)
+{
+    SoftRendererData *data = base->data;
+    Bitmap *target = &data->target;
+    uint32_t packed_color = chk_packed_rgba(cmd->base.color);
+
+    /* Get the rectangle bounding box */
+    float bb_x0 = chk_minf(cmd->p0.x, cmd->p1.x);
+    float bb_y0 = chk_minf(cmd->p0.y, cmd->p1.y);
+    float bb_x1 = chk_maxf(cmd->p0.x, cmd->p1.x);
+    float bb_y1 = chk_maxf(cmd->p0.y, cmd->p1.y);
+
+    float rr_w = chk_absf(bb_x1 - bb_x0);
+    float rr_h = chk_absf(bb_y1 - bb_y0);
+
+    chk_maxf(chk_minf(bb_x0, (float)target->w - 1.0f), 0.0f);
+    chk_maxf(chk_minf(bb_y0, (float)target->h - 1.0f), 0.0f);
+    chk_maxf(chk_minf(bb_x1, (float)target->w - 1.0f), 0.0f);
+    chk_maxf(chk_minf(bb_y1, (float)target->h - 1.0f), 0.0f);
+
+    if (bb_x0 > bb_x1)
+        chk_swap(bb_x0, bb_x1);
+    if (bb_y0 > bb_y1)
+        chk_swap(bb_y0, bb_y1);
+
+    uint8_t *row = (uint8_t *)target->memory + target->stride * (int)bb_y0;
+    for (int y = (int)bb_y0; y < bb_y1; ++y)
+    {
+        uint32_t *pixel = (uint32_t *)row + (int)bb_x0;
+
+        float uv_y = (y - bb_y0) / rr_h;
+        for (int x = (int)bb_x0; x < bb_x1; ++x)
+        {
+            float uv_x = (x - bb_x0) / rr_w;
+
+            uint32_t debug_uv_color = chk_packed_rgba_from_float(uv_x, uv_y, 0.0f, 1.0f);
+            *pixel++ = debug_uv_color;
+        }
+        row += target->stride;
+    }
+}
+
+void chk_soft_renderer_draw_rect_simple(Renderer *base, RectCmd *cmd)
+{
+    SoftRendererData *data = base->data;
+    Bitmap *target = &data->target;
+    uint32_t packed_color = chk_packed_rgba(cmd->base.color);
+
+    /* Get the rectangle bounding box */
+    float bb_x0 = chk_maxf(chk_minf(chk_minf(cmd->p0.x, cmd->p1.x), (float)target->w - 1.0f), 0.0f);
+    float bb_y0 = chk_maxf(chk_minf(chk_minf(cmd->p0.y, cmd->p1.y), (float)target->h - 1.0f), 0.0f);
+    float bb_x1 = chk_maxf(chk_minf(chk_maxf(cmd->p0.x, cmd->p1.x), (float)target->w - 1.0f), 0.0f);
+    float bb_y1 = chk_maxf(chk_minf(chk_maxf(cmd->p0.y, cmd->p1.y), (float)target->h - 1.0f), 0.0f);
+
+    if (bb_x0 > bb_x1)
+        chk_swap(bb_x0, bb_x1);
+    if (bb_y0 > bb_y1)
+        chk_swap(bb_y0, bb_y1);
+
+    uint8_t *row = (uint8_t *)target->memory + target->stride * (int)bb_y0;
+    for (int y = (int)bb_y0; y < bb_y1; ++y)
+    {
+        uint32_t *pixel = (uint32_t *)row + (int)bb_x0;
+        for (int x = (int)bb_x0; x < bb_x1; ++x)
+        {
+            *pixel++ = packed_color;
+        }
+        row += target->stride;
+    }
+}
+
 void chk_soft_renderer_draw_rect(Renderer *base, RectCmd *cmd)
 {
-    /* No-Op */
+    if (cmd->base.bmp)
+        chk_soft_renderer_draw_rect_tex(base, cmd);
+    else
+        chk_soft_renderer_draw_rect_simple(base, cmd);
 }

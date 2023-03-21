@@ -39,17 +39,17 @@ void chk_cmd_list_reset(CmdList *cmd_list)
 }
 
 // Push commands
-#define CHK_PUSH_CMD(List, TypeName, Color, Bmp)                                       \
-    RenderCmd *prev = (RenderCmd *)((uint8_t *)List->arena.memory + List->arena.used); \
-                                                                                       \
-    TypeName##Cmd *cmd = chk_memory_arena_push_struct(&List->arena, TypeName##Cmd);    \
-    chk_error_if(!cmd, "Failed to allocate the " #TypeName " command.") return false;  \
-    cmd->base.kind = CmdKind_##TypeName;                                               \
-    cmd->base.color = Color;                                                           \
-    cmd->base.bmp = Bmp;                                                               \
-    cmd->base.next = NULL;                                                             \
-    if (prev && prev != &cmd->base)                                                    \
-        prev->next = &cmd->base;                                                       \
+#define CHK_PUSH_CMD(List, TypeName, Color, Bmp)                                      \
+    RenderCmd *prev = (RenderCmd *)List->arena.last_alloc;                            \
+                                                                                      \
+    TypeName##Cmd *cmd = chk_memory_arena_push_struct(&List->arena, TypeName##Cmd);   \
+    chk_error_if(!cmd, "Failed to allocate the " #TypeName " command.") return false; \
+    cmd->base.kind = CmdKind_##TypeName;                                              \
+    cmd->base.color = Color;                                                          \
+    cmd->base.bmp = Bmp;                                                              \
+    cmd->base.next = NULL;                                                            \
+    if (prev && prev != &cmd->base)                                                   \
+        prev->next = &cmd->base;                                                      \
     ++cmd_list->count
 
 bool chk_push_clear(CmdList *cmd_list, RGBA color)
@@ -79,7 +79,7 @@ bool chk_push_rect(CmdList *cmd_list, V2 p0, V2 p1, RGBA color)
 
 bool chk_push_rect_tex(CmdList *cmd_list, V2 p0, V2 p1, RGBA color, Bitmap *bmp)
 {
-    return chk_push_rect_tex_uv(cmd_list, p0, p1, color, bmp, v2(0.0f, 0.0f), v2(1.0f, 1.0f));
+    return chk_push_rect_tex_uv(cmd_list, p0, p1, color, bmp, v2(0.0f, 1.0f), v2(1.0f, 0.0f));
 }
 
 bool chk_push_rect_tex_uv(CmdList *cmd_list, V2 p0, V2 p1, RGBA color, Bitmap *bmp, UV uv0, UV uv1)

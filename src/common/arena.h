@@ -6,6 +6,7 @@ typedef struct s_MemoryArena
 {
     size_t size, used;
     void *memory;
+    void *last_alloc;
     bool owns_memory;
 } MemoryArena;
 
