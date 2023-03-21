@@ -1,5 +1,7 @@
 #include "renderer.h"
 
+#include <math/algebra.h>
+
 // Generic Renderer related
 bool chk_renderer_begin_frame(struct s_Renderer *base)
 {
@@ -51,6 +53,16 @@ void chk_renderer_reset_internal_resolution(struct s_Renderer *base)
     base->m_internal_resolution_is_set = false;
     base->m_internal_resolution_w = base->window->fb_w;
     base->m_internal_resolution_h = base->window->fb_h;
+}
+
+V2 chk_renderer_get_mouse_pos(Renderer *renderer)
+{
+    Window *window = renderer->window;
+    float scaled_mx = chk_map_range(window->mouse_x, 0, window->fb_w, renderer->viewport_x, renderer->viewport_x + renderer->viewport_w);
+    float scaled_my = chk_map_range(window->mouse_y, 0, window->fb_h, renderer->viewport_y, renderer->viewport_y + renderer->viewport_h);
+
+    return v2(chk_map_range(scaled_mx, 0, renderer->viewport_w, 0, renderer->m_internal_resolution_w),
+              chk_map_range(scaled_my, 0, renderer->viewport_h, 0, renderer->m_internal_resolution_h));
 }
 
 // Null-Renderer related

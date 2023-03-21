@@ -5,6 +5,7 @@
 #include <renderer.h>
 #include <soft.h>
 #include <window.h>
+#include <math/algebra.h>
 
 typedef struct s_Engine
 {
@@ -43,9 +44,11 @@ void cb_main(void *user_ptr)
         chk_cmd_list_reset(cmd_list);
         chk_push_clear(cmd_list, v4(0.7f, 0.8f, 0.9f, 1.0f));
 
+        V2 mouse_pos = chk_renderer_get_mouse_pos(renderer);
+
         RGBA color_blue = v4_div(v4(42, 75, 215, 255), 255.0f);
         Bitmap white_tex = {0};
-        chk_push_rect_tex(cmd_list, v2(4, 8), v2(16, 32), color_blue, &white_tex);
+        chk_push_rect_tex(cmd_list, v2(4, 8), mouse_pos, color_blue, &white_tex);
 
         // End the frame
         chk_renderer_process_cmds(renderer, cmd_list);

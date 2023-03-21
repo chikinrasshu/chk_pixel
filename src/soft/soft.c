@@ -77,6 +77,8 @@ bool chk_soft_renderer_begin_frame(Renderer *base)
     // Set the new viewport if the target covers the whole window.
     if (base->window->fb_size_changed && !base->window->is_minimized)
     {
+        base->viewport_x = 0, base->viewport_y = 0;
+        base->viewport_w = base->window->fb_w, base->viewport_h = base->window->fb_h;
         chk_soft_gl_update_viewport(&data->gl, 0, 0, base->window->fb_w, base->window->fb_h);
     }
 
@@ -98,6 +100,8 @@ bool chk_soft_renderer_begin_frame(Renderer *base)
         int scaled_x = (int)((base->window->fb_w - scaled.x) / 2.0f);
         int scaled_y = (int)((base->window->fb_h - scaled.y) / 2.0f);
 
+        base->viewport_x = scaled_x, base->viewport_y = 0;
+        base->viewport_w = base->window->fb_w, base->viewport_h = base->window->fb_h;
         chk_soft_gl_update_viewport(&data->gl, scaled_x, scaled_y, (int)scaled.w, (int)scaled.h);
     }
 
