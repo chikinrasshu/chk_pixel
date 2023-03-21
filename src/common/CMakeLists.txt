@@ -10,6 +10,8 @@ add_library(
   "common.h"
   "file_io.c"
   "file_io.h"
+  "math/algebra.c"
+  "math/algebra.h"
   "math/minmax.c"
   "math/minmax.h"
   "math/vec2.c"
