@@ -16,7 +16,7 @@ size_t chk_get_file_size(const char *path)
 size_t chk_read_binary_file(const char *path, void *memory, size_t memory_size)
 {
     FILE *fptr = fopen(path, "rb+");
-    chk_errorf_if(!fptr, "Failed to open file '%s'.", path);
+    chk_errorf_if(!fptr, "Failed to open file '%s'.", path) return 0;
 
     fseek(fptr, 0L, SEEK_END);
     size_t file_size = ftell(fptr);
