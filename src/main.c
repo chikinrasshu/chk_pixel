@@ -97,7 +97,7 @@ int main()
 
     // Run the program
     int error_code = chk_window_run(engine.window);
-    chk_errorf_if(error_code != 0, "Window exited with an error: %d", error_code);
+    chk_errorf_if(error_code != 0, "Window exited with an error: %d", error_code) return 1;
 
     // Cleanup
     chk_engine_destroy(&engine);
