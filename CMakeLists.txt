@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.25)
 project(chk_pixel C)
 
+# Enable CHK_PATH for everyone to use.
+string(LENGTH "${CMAKE_SOURCE_DIR}/" SOURCE_PATH_SIZE)
+add_compile_definitions(CHK_SRC_DIR_LENGTH=${SOURCE_PATH_SIZE})
+
 # Add GLFW
 set(GLFW_BUILD_DOCS
     OFF
