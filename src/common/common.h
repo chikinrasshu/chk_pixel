@@ -43,13 +43,14 @@ void *chk_zalloc(size_t amount);
 void chk_free(void *ptr);
 
 void chk_zero_memory(void *ptr, size_t amount);
+void chk_copy_memory(void *dst, void *src, size_t amount);
 
 // Logic helpers
 #define chk_swap(x, y)                                                                   \
     do                                                                                   \
     {                                                                                    \
         unsigned char chk_swap_temp_zz[sizeof(x) == sizeof(y) ? (signed)sizeof(x) : -1]; \
-        memcpy(chk_swap_temp_zz, &y, sizeof(x));                                         \
-        memcpy(&y, &x, sizeof(x));                                                       \
-        memcpy(&x, chk_swap_temp_zz, sizeof(x));                                         \
+        chk_copy_memory(chk_swap_temp_zz, &y, sizeof(x));                                \
+        chk_copy_memory(&y, &x, sizeof(x));                                              \
+        chk_copy_memory(&x, chk_swap_temp_zz, sizeof(x));                                \
     } while (0)

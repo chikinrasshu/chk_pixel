@@ -54,6 +54,7 @@ void *chk_alloc(size_t amount) { return malloc(amount); }
 void *chk_zalloc(size_t amount) { return calloc(1, amount); }
 void chk_free(void *ptr) { free(ptr); }
 void chk_zero_memory(void *ptr, size_t amount) { memset(ptr, 0, amount); }
+void chk_copy_memory(void *src, void *dst, size_t amount) { memcpy(dst, src, amount); }
 
 // Debugging related
 bool chk_generic_vprint(const char *sender, const char *file, const char *func, size_t line, const char *fmt, va_list args)
