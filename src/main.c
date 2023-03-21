@@ -7,6 +7,8 @@
 #include <window.h>
 #include <math/algebra.h>
 
+#include <spng.h>
+
 typedef struct s_Engine
 {
     MemoryArena main_arena;
@@ -94,6 +96,36 @@ int main()
     size_t raw_png_buffer_size = chk_get_file_size(path_buffer);
     void *raw_png_buffer = chk_memory_arena_push(&engine.temp_arena, raw_png_buffer_size);
     chk_read_binary_file(path_buffer, raw_png_buffer, raw_png_buffer_size);
+
+    // Decode PNG
+    Bitmap png_image = {0};
+    {
+        spng_ctx *ctx = spng_ctx_new(0);
+        chk_error_if(!ctx, "Failed to create the sPNG context.") return 1;
+
+        spng_set_png_buffer(ctx, raw_png_buffer, raw_png_buffer_size);
+        spng_decode_chunks(ctx);
+
+        size_t png_size;
+        spng_decoded_image_size(ctx, SPNG_FMT_RGBA8, &png_size);
+
+        struct spng_ihdr png_header = {0};
+        chk_error_if(spng_get_ihdr(ctx, &png_header), "Failed to get the iHDR header.") return 1;
+
+        void *png_memory = chk_memory_arena_push(&engine.main_arena, png_size);
+        chk_errorf_if(!png_memory, "Failed to allocate %zu bytes for the decoded PNG file.", png_size) return 1;
+        spng_decode_image(ctx, png_memory, png_size, SPNG_FMT_RGBA8, 0);
+        spng_ctx_free(ctx);
+
+        png_image.w = png_header.width;
+        png_image.h = png_header.height;
+        png_image.bpp = 4;
+        png_image.size = png_size;
+        png_image.stride = png_header.width;
+        png_image.memory = png_memory;
+        png_image.memory_size = png_size;
+        png_image.owns_memory = true;
+    }
 
     // Run the program
     int error_code = chk_window_run(engine.window);

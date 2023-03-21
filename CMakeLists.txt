@@ -28,6 +28,9 @@ add_library(whereami STATIC ${WAI_SOURCES_DIR}/whereami.c
                             ${WAI_SOURCES_DIR}/whereami.h)
 target_include_directories(whereami PUBLIC ${WAI_SOURCES_DIR})
 
+# Add sPNG
+add_subdirectory("ext/spng")
+
 # Compile folders as libraries
 add_subdirectory(src/common)
 add_subdirectory(src/renderer)
@@ -37,7 +40,8 @@ add_subdirectory(src/window)
 
 # Compile the main executable
 add_executable(chk_pixel "src/main.c")
-target_link_libraries(chk_pixel chk_common chk_renderer chk_soft chk_window)
+target_link_libraries(chk_pixel chk_common chk_renderer chk_soft chk_window
+                      spng)
 
 # Sym-Link the data folder to the executable
 add_custom_command(
