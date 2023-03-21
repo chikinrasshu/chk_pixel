@@ -97,6 +97,11 @@ int main()
     void *raw_png_buffer = chk_memory_arena_push(&engine.temp_arena, raw_png_buffer_size);
     chk_read_binary_file(path_buffer, raw_png_buffer, raw_png_buffer_size);
 
+    // Configure PNG decoding with custom allocator
+    // struct spng_alloc my_png_alloc = {0};
+    // my_png_alloc.
+    // spng_ctx* my_ctx = spng_ctx_new2(&my_png_alloc, 0);
+
     // Decode PNG
     Bitmap png_image = {0};
     {
