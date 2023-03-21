@@ -57,7 +57,6 @@ bool chk_soft_gl_init(SoftGL *gl, int win_w, int win_h)
 
     // - Setup the fixed pipeline
     glEnable(GL_BLEND);
-    glEnable(GL_DEPTH_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // - Set the default clear color
@@ -87,18 +86,12 @@ bool chk_soft_gl_init(SoftGL *gl, int win_w, int win_h)
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid *)0);
     glEnableVertexAttribArray(1);
 
+    // - Done with the buffers.
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
     size_t sent_bytes = 2 * sizeof(GLfloat) + 2 * sizeof(GLfloat);
     chk_logf_if(CHK_SOFT_GL_LOG, "Sent %zu bytes to the GPU for the vertices", sent_bytes);
-
-    // - Texture bindings
-    glGenTextures(1, &gl->texture);
-    glBindTexture(GL_TEXTURE_2D, gl->texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    chk_logf_if(CHK_SOFT_GL_LOG, "Created texture id:%u", gl->texture);
 
     // - Create the shader program
     gl->shader_program = glCreateProgram();
@@ -133,15 +126,27 @@ bool chk_soft_gl_init(SoftGL *gl, int win_w, int win_h)
     chk_logf_if(CHK_SOFT_GL_LOG, "Linked shader program id:%u with vertex shader id:%u and fragment shader id:%u",
                 gl->shader_program, gl->vert_shader, gl->frag_shader);
 
-    //  - We're done.
-    glUseProgram(gl->shader_program);
+    // - Texture bindings
+    glGenTextures(1, &gl->texture);
+    glBindTexture(GL_TEXTURE_2D, gl->texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+    chk_logf_if(CHK_SOFT_GL_LOG, "Created texture id:%u", gl->texture);
+
+    // - Get the texture slot to use for the shader
+    glUseProgram(gl->shader_program);
     gl->texture_location = glGetUniformLocation(gl->shader_program, "tex");
     gl->texture_unit = 0;
+    glUseProgram(0);
 
     chk_soft_gl_update_viewport(gl, 0, 0, win_w, win_h);
 
+    // - We're done.
     chk_log_if(CHK_SOFT_GL_LOG, "Initted softGL");
+
     return true;
 }
 
@@ -202,24 +207,24 @@ void chk_soft_gl_update_tex(SoftGL *gl, Bitmap *bmp)
     chk_error_if(!bmp, "bmp was NULL.") return;
     chk_errorf_if(bmp->bpp != 4, "Unsupported bitmap bpp of %d.", bmp->bpp) return;
 
+    glUseProgram(0);
     glActiveTexture(GL_TEXTURE0 + gl->texture_unit);
     glBindTexture(GL_TEXTURE_2D, gl->texture);
 
-    // glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
     // glPixelStorei(GL_UNPACK_ROW_LENGTH, (GLint)bmp->stride);
 
     int format = GL_RGBA;
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bmp->w, bmp->h, 0, format, GL_UNSIGNED_BYTE, bmp->memory);
+    glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 void chk_soft_gl_clear_region(SoftGL *gl, int x, int y, int w, int h)
 {
     chk_error_if(!gl, "gl was NULL.") return;
 
-    int saved_x = gl->vp_x;
-    int saved_y = gl->vp_y;
-    int saved_w = gl->vp_w;
-    int saved_h = gl->vp_h;
+    int saved_x = gl->vp_x, saved_y = gl->vp_y;
+    int saved_w = gl->vp_w, saved_h = gl->vp_h;
 
     chk_soft_gl_update_viewport(gl, x, y, w, h);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -229,16 +234,12 @@ void chk_soft_gl_clear_region(SoftGL *gl, int x, int y, int w, int h)
 void chk_soft_gl_present(SoftGL *gl, Bitmap *bmp)
 {
     chk_error_if(!gl, "gl was NULL.") return;
-    chk_error_if(!gl->shader_program, "Missing shader program.");
+    chk_error_if(!bmp, "bmp was NULL.") return;
+    chk_error_if(!gl->shader_program, "Missing shader program.") return;
 
     chk_soft_gl_update_tex(gl, bmp);
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     glUseProgram(gl->shader_program);
 
-    glActiveTexture(GL_TEXTURE0 + gl->texture_unit);
-    glBindTexture(GL_TEXTURE_2D, gl->texture);
     glUniform1i(gl->texture_location, gl->texture_unit);
 
     glBindVertexArray(gl->vao);

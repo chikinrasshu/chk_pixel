@@ -182,16 +182,8 @@ bool chk_window_process_frame(Window *win)
 
 int chk_window_run(Window *win)
 {
-    if (!win)
-    {
-        fprintf(stderr, "chk_window_run: win was NULL.\n");
-        return -1;
-    }
-
-    if (!chk_window_show(win))
-    {
-        return -1;
-    }
+    chk_error_if(!win, "win was NULL.") return 1;
+    chk_error_if(!chk_window_show(win), "Failed to show the window.") return 1;
 
     glfwSetTime(0.0);
     win->current_time = win->last_time = glfwGetTime();

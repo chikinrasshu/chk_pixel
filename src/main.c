@@ -53,28 +53,34 @@ int main()
 {
     Engine engine = {0};
 
-    chk_error_if(!chk_memory_arena_zalloc(&engine.main_arena, chk_megabytes(256)), "Failed to allocate the main arena.") return 1;
-    chk_error_if(!chk_memory_arena_zalloc(&engine.temp_arena, chk_gigabytes(1)), "Failed to allocate the transient arena.") return 1;
+    chk_error_if(!chk_memory_arena_zalloc(&engine.main_arena, chk_megabytes(256)),
+                 "Failed to allocate the main arena.") return 1;
+    chk_error_if(!chk_memory_arena_zalloc(&engine.temp_arena, chk_gigabytes(1)),
+                 "Failed to allocate the transient arena.") return 1;
 
     engine.window = chk_memory_arena_push_struct(&engine.main_arena, Window);
     engine.window->user_ptr = &engine;
     engine.window->user_callback = cb_main;
-    chk_window_init_opengl(engine.window, 800, 600, "chk_pixel");
+    chk_error_if(!chk_window_init_opengl(engine.window, 800, 600, "chk_pixel"),
+                 "Failed to initialize the main OpenGL Window.") return 1;
 
     engine.renderer = chk_memory_arena_push_struct(&engine.main_arena, Renderer);
     SoftRendererData *soft_data = chk_memory_arena_push_struct(&engine.main_arena, SoftRendererData);
     chk_renderer_set_internal_resolution(engine.renderer, 80, 60);
-    chk_soft_renderer_init(engine.renderer, soft_data, engine.window);
+    chk_error_if(!chk_soft_renderer_init(engine.renderer, soft_data, engine.window),
+                 "Failed to initialize the Soft Renderer.") return 1;
 
     engine.cmd_list = chk_memory_arena_push_struct(&engine.main_arena, CmdList);
     size_t cmd_list_size = chk_megabytes(256);
     void *cmd_list_memory = chk_memory_arena_zpush(&engine.temp_arena, cmd_list_size);
-    chk_cmd_list_init(engine.cmd_list, cmd_list_memory, cmd_list_size);
+    chk_error_if(!chk_cmd_list_init(engine.cmd_list, cmd_list_memory, cmd_list_size),
+                 "Failed to create the Render Command List.") return 1;
 
     // Run the program
-    chk_window_run(engine.window);
+    int error_code = chk_window_run(engine.window);
+    chk_errorf_if(error_code != 0, "Window exited with an error: %d", error_code);
 
     // Cleanup
     chk_engine_destroy(&engine);
-    return 0;
+    return error_code;
 }

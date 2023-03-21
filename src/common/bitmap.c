@@ -27,8 +27,6 @@ bool chk_bitmap_init(Bitmap *bitmap, int w, int h, int bpp, void *memory, size_t
     bitmap->size = required;
     bitmap->stride = chk_bitmap_query_stride(w, bpp);
 
-    printf("Bitmap dump: %d x %d at %d bpp.\n", bitmap->w, bitmap->h, bitmap->bpp);
-
     return true;
 }
 
@@ -50,22 +48,5 @@ bool chk_bitmap_resize(Bitmap *bitmap, int w, int h)
     size_t required = chk_bitmap_query(w, h, bitmap->bpp);
     chk_error_if(bitmap->memory_size < required, "The bitmap would not fit into the current bitmap's buffer.") return false;
 
-    bool resized = chk_bitmap_init(bitmap, w, h, bitmap->bpp, bitmap->memory, bitmap->memory_size);
-
-    if (resized)
-    {
-        // Draw a dumb pattern
-        uint8_t *row = bitmap->memory;
-        for (int y = 0; y < bitmap->h; ++y)
-        {
-            uint32_t *pixel = (uint32_t *)row;
-            for (int x = 0; x < bitmap->w; ++x)
-            {
-                *pixel++ = chk_packed_rgba_from_u8(x, y, 0, 255);
-            }
-            row += bitmap->stride;
-        }
-    }
-
-    return resized;
+    return chk_bitmap_init(bitmap, w, h, bitmap->bpp, bitmap->memory, bitmap->memory_size);
 }
