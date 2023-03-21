@@ -40,7 +40,6 @@ void chk_bitmap_destroy(Bitmap *bitmap)
     *bitmap = (Bitmap){0};
 }
 
-#include "colors.h"
 bool chk_bitmap_resize(Bitmap *bitmap, int w, int h)
 {
     chk_error_if(!bitmap, "bitmap was NULL.") return false;
